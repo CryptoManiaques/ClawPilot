@@ -489,125 +489,56 @@
     .tag-free { background: rgba(16, 185, 129, 0.15); color: #34d399; }
     .tag-paid { background: rgba(196, 240, 66, 0.1); color: var(--accent); }
 
-    /* ===== PRICING ===== */
-    .pricing-grid {
+    /* ===== OPEN SOURCE ===== */
+    .open-source-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 1.5rem;
       margin-top: 3.5rem;
     }
 
-    .price-card {
+    .oss-card {
       padding: 2rem;
       border: 1px solid var(--border);
       border-radius: 12px;
       background: var(--bg-card);
-      position: relative;
       transition: border-color 0.3s, transform 0.2s;
     }
 
-    .price-card:hover {
+    .oss-card:hover {
+      border-color: var(--accent-dim);
       transform: translateY(-4px);
     }
 
-    .price-card.featured {
-      border-color: var(--accent-dim);
-      background: linear-gradient(180deg, rgba(196, 240, 66, 0.04) 0%, var(--bg-card) 50%);
+    .oss-icon {
+      font-size: 1.5rem;
+      margin-bottom: 1.25rem;
     }
 
-    .price-card.featured::before {
-      content: 'MOST POPULAR';
-      position: absolute;
-      top: -10px;
-      left: 50%;
-      transform: translateX(-50%);
-      padding: 0.2rem 0.75rem;
-      background: var(--accent);
-      color: var(--bg-deep);
-      font-size: 0.65rem;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      border-radius: 4px;
-    }
-
-    .price-name {
+    .oss-card h3 {
+      font-size: 1.05rem;
       font-weight: 600;
-      font-size: 1rem;
-      margin-bottom: 0.25rem;
+      margin-bottom: 0.5rem;
     }
 
-    .price-tag {
-      font-family: var(--font-display);
-      font-size: 2.5rem;
-      font-weight: 400;
-      margin: 0.75rem 0;
-    }
-
-    .price-tag span {
-      font-family: var(--font-body);
-      font-size: 0.9rem;
-      color: var(--text-muted);
-    }
-
-    .price-desc {
-      color: var(--text-muted);
-      font-size: 0.85rem;
-      margin-bottom: 1.5rem;
-      line-height: 1.5;
-    }
-
-    .price-features {
-      list-style: none;
-      margin-bottom: 1.5rem;
-    }
-
-    .price-features li {
-      padding: 0.4rem 0;
-      font-size: 0.85rem;
+    .oss-card p {
       color: var(--text-secondary);
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
+      font-size: 0.9rem;
+      line-height: 1.6;
     }
 
-    .price-features li::before {
-      content: '~';
-      color: var(--accent);
-      font-family: var(--font-mono);
-      font-weight: 700;
-    }
-
-    .price-btn {
-      display: block;
-      width: 100%;
-      padding: 0.75rem;
+    .oss-install {
+      margin-top: 3rem;
       text-align: center;
-      border-radius: 8px;
-      font-weight: 600;
-      font-size: 0.9rem;
-      text-decoration: none;
-      transition: transform 0.15s, box-shadow 0.2s;
     }
 
-    .price-btn-primary {
-      background: var(--accent);
-      color: var(--bg-deep);
-    }
-
-    .price-btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 20px var(--accent-glow);
-    }
-
-    .price-btn-ghost {
-      background: transparent;
-      border: 1px solid var(--border);
-      color: var(--text-secondary);
-    }
-
-    .price-btn-ghost:hover {
-      border-color: var(--border-hover);
-      color: var(--text-primary);
+    .oss-install-label {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
     }
 
     /* ===== FAQ ===== */
@@ -763,7 +694,7 @@
       .steps { grid-template-columns: 1fr; }
       .features-grid { grid-template-columns: 1fr; }
       .feature-wide { grid-template-columns: 1fr; }
-      .pricing-grid { grid-template-columns: 1fr; }
+      .open-source-grid { grid-template-columns: 1fr; }
       .hero-ctas { flex-direction: column; align-items: center; }
       .final-cta-buttons { flex-direction: column; align-items: center; }
       .footer-links { gap: 1rem; }
@@ -779,7 +710,7 @@
     <ul class="nav-links">
       <li><a href="#how-it-works">How it works</a></li>
       <li><a href="#features">Features</a></li>
-      <li><a href="#pricing">Pricing</a></li>
+      <li><a href="#open-source">Open Source</a></li>
       <li><a href="#faq">FAQ</a></li>
       <li><a href="https://github.com/CryptoManiaques/ClawPilot" class="nav-cta" target="_blank">GitHub</a></li>
     </ul>
@@ -922,50 +853,34 @@
     </div>
   </section>
 
-  <!-- PRICING -->
-  <section id="pricing">
-    <p class="section-label">Pricing</p>
-    <h2 class="section-title">Pick your speed. <em>Or go free.</em></h2>
-    <p class="section-desc">All tiers get every feature. You're just choosing how fast and how natural the voice feels.</p>
+  <!-- OPEN SOURCE -->
+  <section id="open-source">
+    <p class="section-label">100% Free</p>
+    <h2 class="section-title">Free forever. <em>Open source.</em></h2>
+    <p class="section-desc">ClawPilot is a free Skill for OpenClaw. No subscriptions, no paywalls. Every feature, every provider — yours to use.</p>
 
-    <div class="pricing-grid">
-      <div class="price-card">
-        <p class="price-name">Free</p>
-        <p class="price-tag">$0 <span>/mo</span></p>
-        <p class="price-desc">Local everything. No API costs. Perfect for tinkering.</p>
-        <ul class="price-features">
-          <li>Whisper local STT (whisper.cpp)</li>
-          <li>Edge TTS (Microsoft voices)</li>
-          <li>All features included</li>
-          <li>~3-5s response delay</li>
-        </ul>
-        <a href="https://github.com/CryptoManiaques/ClawPilot" class="price-btn price-btn-ghost" target="_blank">Install free</a>
+    <div class="open-source-grid">
+      <div class="oss-card">
+        <div class="oss-icon">&#128218;</div>
+        <h3>MIT Licensed</h3>
+        <p>Use it, modify it, distribute it. No restrictions. Fork it, customize it, make it yours.</p>
       </div>
-
-      <div class="price-card featured">
-        <p class="price-name">Budget</p>
-        <p class="price-tag">~$10 <span>/mo</span></p>
-        <p class="price-desc">One API key. Real-time STT. Great tradeoff.</p>
-        <ul class="price-features">
-          <li>Deepgram STT (streaming)</li>
-          <li>Edge TTS (free voices)</li>
-          <li>All features included</li>
-          <li>~1s response delay</li>
-        </ul>
-        <a href="https://github.com/CryptoManiaques/ClawPilot" class="price-btn price-btn-primary" target="_blank">Get started</a>
+      <div class="oss-card">
+        <div class="oss-icon">&#9881;</div>
+        <h3>Bring your own keys</h3>
+        <p>Use free providers for zero cost, or bring your own API keys for premium speed. You control the budget.</p>
       </div>
+      <div class="oss-card">
+        <div class="oss-icon">&#127759;</div>
+        <h3>Community driven</h3>
+        <p>Feature requests, bug reports, PRs — all welcome. Built by the community, for the community.</p>
+      </div>
+    </div>
 
-      <div class="price-card">
-        <p class="price-name">Premium</p>
-        <p class="price-tag">~$50 <span>/mo</span></p>
-        <p class="price-desc">Fastest STT + best voices. The full experience.</p>
-        <ul class="price-features">
-          <li>Deepgram STT (streaming)</li>
-          <li>OpenAI TTS (natural voices)</li>
-          <li>All features included</li>
-          <li>Sub-second response</li>
-        </ul>
-        <a href="https://github.com/CryptoManiaques/ClawPilot" class="price-btn price-btn-ghost" target="_blank">Go premium</a>
+    <div class="oss-install">
+      <p class="oss-install-label">Get started in seconds</p>
+      <div class="install-snippet">
+        <span class="cmd">$</span> git clone https://github.com/CryptoManiaques/ClawPilot.git && npm install
       </div>
     </div>
   </section>
@@ -990,11 +905,11 @@
       </div>
       <div class="faq-item">
         <button class="faq-q">Is my voice data private? <span class="chevron">+</span></button>
-        <div class="faq-a"><p>With the Free tier (Whisper local), your audio never leaves your machine. With paid providers, audio is sent to Deepgram/OpenAI for processing. We never store or log your audio.</p></div>
+        <div class="faq-a"><p>With Whisper local + Edge TTS, your audio never leaves your machine. If you choose cloud providers like Deepgram or OpenAI, audio is sent to their servers for processing. We never store or log your audio.</p></div>
       </div>
       <div class="faq-item">
-        <button class="faq-q">What hardware do I need for the Free tier? <span class="chevron">+</span></button>
-        <div class="faq-a"><p>Whisper local works on any modern CPU. An M1 Mac or NVIDIA GPU will give you faster transcription (~1-2s). Budget/Premium tiers offload processing to the cloud, so any machine works.</p></div>
+        <button class="faq-q">What hardware do I need for local mode? <span class="chevron">+</span></button>
+        <div class="faq-a"><p>Whisper local works on any modern CPU. An M1 Mac or NVIDIA GPU will give you faster transcription (~1-2s). Cloud providers offload processing, so any machine works.</p></div>
       </div>
       <div class="faq-item">
         <button class="faq-q">Can I change the wake word? <span class="chevron">+</span></button>
@@ -1111,7 +1026,7 @@
       });
     }, { threshold: 0.1 });
 
-    document.querySelectorAll('.step, .feature, .price-card, .faq-item').forEach(el => {
+    document.querySelectorAll('.step, .feature, .oss-card, .faq-item').forEach(el => {
       el.style.opacity = '0';
       el.style.transform = 'translateY(20px)';
       el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
