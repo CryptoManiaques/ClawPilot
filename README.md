@@ -90,6 +90,7 @@ Add to your OpenClaw config (`~/.openclaw/openclaw.json`):
           "discordToken": "YOUR_DISCORD_BOT_TOKEN",
           "sttProvider": "whisper-local",   // Free! Or "deepgram" for speed
           "ttsProvider": "edge",            // Free! Or "openai" for quality
+          "agentName": "bobby",            // Say "bobby" anywhere to trigger
           "activationMode": "wake_word",
           "wakeWords": ["hey claw", "ok claw"]
         }
@@ -103,7 +104,11 @@ Add to your OpenClaw config (`~/.openclaw/openclaw.json`):
 
 Join a Discord voice channel and say:
 
-> **"Hey Claw, email John about the meeting tomorrow"**
+> **"Bobby, email John about the meeting tomorrow"**
+
+Or mention the name anywhere in your sentence:
+
+> **"Can you help me bobby?"**
 
 Your agent handles the rest.
 
@@ -137,6 +142,7 @@ Mix and match STT and TTS engines. Go fully free or pay for speed — your choic
 {
   "sttProvider": "whisper-local",
   "ttsProvider": "edge",
+  "agentName": "bobby",
   "edgeTtsVoice": "en-US-AriaNeural"
 }
 ```
@@ -150,7 +156,8 @@ Requires: [whisper.cpp](https://github.com/ggerganov/whisper.cpp) + `pip install
 {
   "sttProvider": "deepgram",
   "deepgramApiKey": "YOUR_KEY",
-  "ttsProvider": "edge"
+  "ttsProvider": "edge",
+  "agentName": "bobby"
 }
 ```
 </details>
@@ -164,7 +171,8 @@ Requires: [whisper.cpp](https://github.com/ggerganov/whisper.cpp) + `pip install
   "deepgramApiKey": "YOUR_KEY",
   "ttsProvider": "openai",
   "openaiApiKey": "YOUR_KEY",
-  "ttsVoice": "nova"
+  "ttsVoice": "nova",
+  "agentName": "bobby"
 }
 ```
 </details>
@@ -183,9 +191,37 @@ Requires: [whisper.cpp](https://github.com/ggerganov/whisper.cpp) + `pip install
 
 ---
 
+## 🗣 Activation Modes
+
+### Agent name (recommended)
+
+Set `agentName` in config (e.g. `"bobby"`). Say the name **anywhere** in a sentence:
+
+- "**Bobby**, what's the weather?"
+- "Can you help me **bobby**?"
+- "Send an email **bobby** to John about the meeting"
+
+The name is automatically removed from the text before sending to your agent.
+
+### Wake word (prefix)
+
+Set `wakeWords` (e.g. `["hey claw"]`). Must be at the **start** of the sentence:
+
+- "**Hey Claw**, what's the weather?"
+- "**Ok Claw**, send an email to John"
+
+### Always active
+
+Set `activationMode` to `"always_active"`. Listens to **everything** — no trigger needed. Best for solo use.
+
+> Both `agentName` and `wakeWords` work together. You can use either to trigger the agent.
+
+---
+
 ## ✨ Features
 
-- **🎤 Wake word activation** — configurable trigger phrases ("hey claw", "ok claw", or anything you want)
+- **🗣 Agent name activation** — say the agent's name anywhere in a sentence to trigger it
+- **🎤 Wake word activation** — configurable prefix phrases ("hey claw", "ok claw", or anything you want)
 - **👂 Always-active mode** — listens to everything, no trigger needed
 - **🛑 Barge-in** — interrupt the bot mid-sentence by speaking
 - **👥 Group mode** — tracks multiple speakers with `[Name]:` attribution
@@ -222,9 +258,10 @@ Requires: [whisper.cpp](https://github.com/ggerganov/whisper.cpp) + `pip install
 | `edgeTtsVoice` | `"en-US-AriaNeural"` | Edge TTS voice name |
 | | | |
 | **Activation** | | |
+| `agentName` | — | Agent name for activation anywhere in sentence (e.g. `"bobby"`) |
 | `activationMode` | `"wake_word"` | `"wake_word"` or `"always_active"` |
-| `wakeWords` | `["hey claw", "ok claw"]` | Trigger phrases |
-| `activationDurationMs` | `30000` | Follow-up window after wake word (ms) |
+| `wakeWords` | `["hey claw", "ok claw"]` | Prefix trigger phrases |
+| `activationDurationMs` | `30000` | Follow-up window after trigger (ms) |
 | | | |
 | **Behavior** | | |
 | `enableBargeIn` | `true` | Interrupt bot when user speaks |
