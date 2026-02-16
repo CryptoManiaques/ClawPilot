@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ClawPilot — Talk to your AI agent through Discord voice</title>
+  <meta name="description" content="Stop typing. Start talking. ClawPilot connects your OpenClaw AI agent to Discord voice channels. Free & open source.">
+  <meta property="og:title" content="ClawPilot — Voice for your AI agent">
+  <meta property="og:description" content="Say 'Hey Claw' in Discord and your AI agent listens, thinks, and responds. Send emails, tweet, research — all by voice.">
+  <meta property="og:type" content="website">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-deep: #07060b;
+      --bg-surface: #0e0d14;
+      --bg-card: #14121e;
+      --bg-card-hover: #1a1728;
+      --accent: #c4f042;
+      --accent-dim: #8aab20;
+      --accent-glow: rgba(196, 240, 66, 0.15);
+      --text-primary: #f0eef5;
+      --text-secondary: #9994b0;
+      --text-muted: #6b6580;
+      --border: #2a2640;
+      --border-hover: #3d3760;
+      --discord-blurple: #5865F2;
+      --gradient-hero: linear-gradient(165deg, #0e0d14 0%, #130f22 40%, #0e0d14 100%);
+      --font-display: 'Instrument Serif', Georgia, serif;
+      --font-body: 'DM Sans', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html {
+      scroll-behavior: smooth;
+      background: var(--bg-deep);
+    }
+
+    body {
+      font-family: var(--font-body);
+      color: var(--text-primary);
+      background: var(--bg-deep);
+      line-height: 1.6;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ===== NOISE OVERLAY ===== */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    /* ===== NAVIGATION ===== */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      backdrop-filter: blur(20px);
+      background: rgba(7, 6, 11, 0.8);
+      border-bottom: 1px solid rgba(42, 38, 64, 0.5);
+    }
+
+    .nav-logo {
+      font-family: var(--font-mono);
+      font-size: 1.1rem;
+      font-weight: 500;
+      color: var(--accent);
+      text-decoration: none;
+      letter-spacing: -0.02em;
+    }
+
+    .nav-logo span { color: var(--text-muted); }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      align-items: center;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 400;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: var(--text-primary); }
+
+    .nav-cta {
+      background: var(--accent) !important;
+      color: var(--bg-deep) !important;
+      padding: 0.5rem 1.25rem;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.85rem !important;
+      transition: transform 0.15s, box-shadow 0.15s !important;
+    }
+
+    .nav-cta:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 20px var(--accent-glow);
+    }
+
+    /* ===== HERO ===== */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 8rem 2rem 6rem;
+      background: var(--gradient-hero);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Radial glow behind hero */
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 20%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 800px;
+      height: 600px;
+      background: radial-gradient(ellipse, rgba(196, 240, 66, 0.06) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    /* Floating grid lines */
+    .hero::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(196, 240, 66, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(196, 240, 66, 0.02) 1px, transparent 1px);
+      background-size: 80px 80px;
+      mask-image: radial-gradient(ellipse 60% 50% at 50% 40%, black 20%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-bottom: 2rem;
+      position: relative;
+      z-index: 1;
+      animation: fadeInUp 0.8s ease both;
+    }
+
+    .hero-badge .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      animation: pulse 2s ease infinite;
+    }
+
+    .hero h1 {
+      font-family: var(--font-display);
+      font-size: clamp(3rem, 7vw, 5.5rem);
+      font-weight: 400;
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+      max-width: 800px;
+      position: relative;
+      z-index: 1;
+      animation: fadeInUp 0.8s ease 0.1s both;
+    }
+
+    .hero h1 em {
+      font-style: italic;
+      color: var(--accent);
+    }
+
+    .hero-sub {
+      font-size: 1.15rem;
+      color: var(--text-secondary);
+      max-width: 560px;
+      margin: 1.5rem auto 0;
+      line-height: 1.7;
+      position: relative;
+      z-index: 1;
+      animation: fadeInUp 0.8s ease 0.2s both;
+    }
+
+    .hero-ctas {
+      display: flex;
+      gap: 1rem;
+      margin-top: 2.5rem;
+      position: relative;
+      z-index: 1;
+      animation: fadeInUp 0.8s ease 0.3s both;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.85rem 2rem;
+      background: var(--accent);
+      color: var(--bg-deep);
+      border: none;
+      border-radius: 8px;
+      font-family: var(--font-body);
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: transform 0.15s, box-shadow 0.2s;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px var(--accent-glow);
+    }
+
+    .btn-ghost {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.85rem 2rem;
+      background: transparent;
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-family: var(--font-body);
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: none;
+      transition: border-color 0.2s, color 0.2s;
+    }
+
+    .btn-ghost:hover {
+      border-color: var(--border-hover);
+      color: var(--text-primary);
+    }
+
+    /* Voice waveform animation */
+    .hero-visual {
+      margin-top: 4rem;
+      position: relative;
+      z-index: 1;
+      animation: fadeInUp 0.8s ease 0.4s both;
+    }
+
+    .waveform {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      height: 60px;
+      padding: 0 2rem;
+    }
+
+    .waveform .bar {
+      width: 3px;
+      border-radius: 3px;
+      background: var(--accent);
+      opacity: 0.6;
+      animation: wave 1.2s ease-in-out infinite;
+    }
+
+    .voice-command {
+      margin-top: 1.5rem;
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      position: relative;
+    }
+
+    .voice-command .typed {
+      color: var(--text-primary);
+      border-right: 2px solid var(--accent);
+      padding-right: 2px;
+      animation: blink 1s step-end infinite;
+    }
+
+    /* ===== SECTIONS SHARED ===== */
+    section {
+      padding: 6rem 2rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--accent-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      margin-bottom: 1rem;
+    }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 400;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      margin-bottom: 1rem;
+    }
+
+    .section-title em {
+      font-style: italic;
+      color: var(--accent);
+    }
+
+    .section-desc {
+      color: var(--text-secondary);
+      font-size: 1.05rem;
+      max-width: 600px;
+      line-height: 1.7;
+    }
+
+    /* ===== HOW IT WORKS ===== */
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+      margin-top: 3.5rem;
+    }
+
+    .step {
+      padding: 2rem;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--bg-card);
+      transition: border-color 0.3s, transform 0.2s;
+      position: relative;
+    }
+
+    .step:hover {
+      border-color: var(--border-hover);
+      transform: translateY(-4px);
+    }
+
+    .step-number {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--accent-dim);
+      letter-spacing: 0.1em;
+      margin-bottom: 1.25rem;
+    }
+
+    .step h3 {
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      font-weight: 400;
+      margin-bottom: 0.75rem;
+    }
+
+    .step p {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+
+    .step-code {
+      margin-top: 1rem;
+      padding: 0.75rem 1rem;
+      background: var(--bg-deep);
+      border-radius: 6px;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      overflow-x: auto;
+    }
+
+    .step-code .cmd { color: var(--accent); }
+
+    /* ===== FEATURES ===== */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+      margin-top: 3.5rem;
+    }
+
+    .feature {
+      padding: 2rem;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--bg-card);
+      transition: border-color 0.3s;
+    }
+
+    .feature:hover {
+      border-color: var(--border-hover);
+    }
+
+    .feature-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      background: var(--accent-glow);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .feature h3 {
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .feature p {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+
+    .feature-wide {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      align-items: center;
+    }
+
+    .feature-wide .providers-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+
+    .providers-table th {
+      text-align: left;
+      font-weight: 500;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .providers-table td {
+      padding: 0.6rem 0;
+      color: var(--text-secondary);
+      border-bottom: 1px solid rgba(42, 38, 64, 0.3);
+    }
+
+    .providers-table td:first-child {
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .tag-free { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+    .tag-paid { background: rgba(196, 240, 66, 0.1); color: var(--accent); }
+
+    /* ===== PRICING ===== */
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      margin-top: 3.5rem;
+    }
+
+    .price-card {
+      padding: 2rem;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--bg-card);
+      position: relative;
+      transition: border-color 0.3s, transform 0.2s;
+    }
+
+    .price-card:hover {
+      transform: translateY(-4px);
+    }
+
+    .price-card.featured {
+      border-color: var(--accent-dim);
+      background: linear-gradient(180deg, rgba(196, 240, 66, 0.04) 0%, var(--bg-card) 50%);
+    }
+
+    .price-card.featured::before {
+      content: 'MOST POPULAR';
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 0.2rem 0.75rem;
+      background: var(--accent);
+      color: var(--bg-deep);
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      border-radius: 4px;
+    }
+
+    .price-name {
+      font-weight: 600;
+      font-size: 1rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .price-tag {
+      font-family: var(--font-display);
+      font-size: 2.5rem;
+      font-weight: 400;
+      margin: 0.75rem 0;
+    }
+
+    .price-tag span {
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .price-desc {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      margin-bottom: 1.5rem;
+      line-height: 1.5;
+    }
+
+    .price-features {
+      list-style: none;
+      margin-bottom: 1.5rem;
+    }
+
+    .price-features li {
+      padding: 0.4rem 0;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .price-features li::before {
+      content: '~';
+      color: var(--accent);
+      font-family: var(--font-mono);
+      font-weight: 700;
+    }
+
+    .price-btn {
+      display: block;
+      width: 100%;
+      padding: 0.75rem;
+      text-align: center;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      text-decoration: none;
+      transition: transform 0.15s, box-shadow 0.2s;
+    }
+
+    .price-btn-primary {
+      background: var(--accent);
+      color: var(--bg-deep);
+    }
+
+    .price-btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 20px var(--accent-glow);
+    }
+
+    .price-btn-ghost {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+    }
+
+    .price-btn-ghost:hover {
+      border-color: var(--border-hover);
+      color: var(--text-primary);
+    }
+
+    /* ===== FAQ ===== */
+    .faq-list {
+      margin-top: 3rem;
+      max-width: 700px;
+    }
+
+    .faq-item {
+      border-bottom: 1px solid var(--border);
+    }
+
+    .faq-q {
+      width: 100%;
+      background: none;
+      border: none;
+      padding: 1.25rem 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      font-family: var(--font-body);
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--text-primary);
+      text-align: left;
+    }
+
+    .faq-q:hover { color: var(--accent); }
+
+    .faq-q .chevron {
+      transition: transform 0.3s;
+      color: var(--text-muted);
+      font-size: 1.2rem;
+    }
+
+    .faq-item.open .faq-q .chevron {
+      transform: rotate(45deg);
+    }
+
+    .faq-a {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease, padding 0.3s ease;
+    }
+
+    .faq-item.open .faq-a {
+      max-height: 300px;
+      padding-bottom: 1.25rem;
+    }
+
+    .faq-a p {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      line-height: 1.7;
+    }
+
+    /* ===== FINAL CTA ===== */
+    .final-cta {
+      text-align: center;
+      padding: 8rem 2rem;
+      position: relative;
+    }
+
+    .final-cta::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      height: 400px;
+      background: radial-gradient(ellipse, rgba(196, 240, 66, 0.05) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .final-cta .section-title { max-width: 600px; margin: 0 auto 1rem; }
+    .final-cta .section-desc { margin: 0 auto 2.5rem; }
+
+    .final-cta-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+    }
+
+    .install-snippet {
+      margin-top: 2rem;
+      display: inline-block;
+      padding: 0.75rem 1.5rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .install-snippet .cmd { color: var(--accent); }
+
+    /* ===== FOOTER ===== */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 3rem 2rem;
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    footer p {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+    }
+
+    footer a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.8rem;
+      transition: color 0.2s;
+    }
+
+    footer a:hover { color: var(--text-primary); }
+
+    .footer-links {
+      display: flex;
+      gap: 2rem;
+    }
+
+    /* ===== ANIMATIONS ===== */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    @keyframes blink {
+      50% { border-color: transparent; }
+    }
+
+    @keyframes wave {
+      0%, 100% { height: 8px; }
+      50% { height: var(--h); }
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .steps { grid-template-columns: 1fr; }
+      .features-grid { grid-template-columns: 1fr; }
+      .feature-wide { grid-template-columns: 1fr; }
+      .pricing-grid { grid-template-columns: 1fr; }
+      .hero-ctas { flex-direction: column; align-items: center; }
+      .final-cta-buttons { flex-direction: column; align-items: center; }
+      .footer-links { gap: 1rem; }
+      footer { flex-direction: column; gap: 1.5rem; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <a href="#" class="nav-logo">claw<span>pilot</span></a>
+    <ul class="nav-links">
+      <li><a href="#how-it-works">How it works</a></li>
+      <li><a href="#features">Features</a></li>
+      <li><a href="#pricing">Pricing</a></li>
+      <li><a href="#faq">FAQ</a></li>
+      <li><a href="https://github.com/CryptoManiaques/ClawPilot" class="nav-cta" target="_blank">GitHub</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-badge">
+      <span class="dot"></span>
+      Open source &middot; OpenClaw plugin
+    </div>
+    <h1>Stop typing.<br>Start <em>talking</em> to your AI.</h1>
+    <p class="hero-sub">
+      Say "Hey Claw" in Discord and your AI agent listens, thinks, and responds — by voice.
+      Send emails, tweet, research. All hands-free.
+    </p>
+    <div class="hero-ctas">
+      <a href="https://github.com/CryptoManiaques/ClawPilot" class="btn-primary" target="_blank">
+        Get ClawPilot &rarr;
+      </a>
+      <a href="#how-it-works" class="btn-ghost">See how it works</a>
+    </div>
+    <div class="hero-visual">
+      <div class="waveform" id="waveform"></div>
+      <div class="voice-command">
+        <span style="color: var(--text-muted)">you &gt;</span>
+        <span class="typed" id="typed-text"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section id="how-it-works">
+    <p class="section-label">How it works</p>
+    <h2 class="section-title">Three steps. <em>Zero complexity.</em></h2>
+    <p class="section-desc">Install, configure, talk. Your AI agent handles the rest.</p>
+
+    <div class="steps">
+      <div class="step">
+        <p class="step-number">01</p>
+        <h3>Install the plugin</h3>
+        <p>Drop it into your OpenClaw setup. Two commands.</p>
+        <div class="step-code">
+          <span class="cmd">$</span> git clone github.com/.../ClawPilot<br>
+          <span class="cmd">$</span> npm install
+        </div>
+      </div>
+      <div class="step">
+        <p class="step-number">02</p>
+        <h3>Add your keys</h3>
+        <p>Discord bot token + your choice of STT/TTS provider. Free options available.</p>
+        <div class="step-code">
+          <span class="cmd">"sttProvider"</span>: "deepgram"<br>
+          <span class="cmd">"ttsProvider"</span>: "openai"
+        </div>
+      </div>
+      <div class="step">
+        <p class="step-number">03</p>
+        <h3>Say "Hey Claw"</h3>
+        <p>Join a Discord voice channel, speak naturally, and your AI agent does the work.</p>
+        <div class="step-code">
+          <span class="cmd">&gt;</span> "Hey Claw, email John about the meeting"<br>
+          <span style="color: var(--accent);">&#9654;</span> Done. Email sent to john@...
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section id="features">
+    <p class="section-label">Features</p>
+    <h2 class="section-title">Voice superpowers <em>for your agent</em></h2>
+    <p class="section-desc">Not a chatbot. An agent with eyes, hands, and now — ears.</p>
+
+    <div class="features-grid">
+      <div class="feature">
+        <div class="feature-icon">&#127908;</div>
+        <h3>Wake word or always-on</h3>
+        <p>Say "Hey Claw" to activate, or flip to always-listening mode when you're in the zone. Fully configurable.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">&#9995;</div>
+        <h3>Interrupt mid-sentence</h3>
+        <p>Your AI rambles? Cut it off. Start speaking and ClawPilot shuts up and listens. Like a good assistant should.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">&#128101;</div>
+        <h3>Works in group calls</h3>
+        <p>Bring your AI to the team call. ClawPilot tracks who's speaking and responds contextually.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">&#128274;</div>
+        <h3>Self-hosted & private</h3>
+        <p>Run everything locally with Whisper + Edge TTS. Your voice data never leaves your machine.</p>
+      </div>
+
+      <div class="feature feature-wide">
+        <div>
+          <div class="feature-icon">&#9881;</div>
+          <h3>Choose your providers</h3>
+          <p>Mix and match STT and TTS engines. Go premium for speed, or fully free for zero API costs. Your call.</p>
+        </div>
+        <table class="providers-table">
+          <thead>
+            <tr>
+              <th>Provider</th>
+              <th>Latency</th>
+              <th>Cost</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Deepgram STT</td>
+              <td>~200ms</td>
+              <td><span class="tag tag-paid">$0.05/h</span></td>
+            </tr>
+            <tr>
+              <td>Whisper API</td>
+              <td>~2s</td>
+              <td><span class="tag tag-paid">$0.006/min</span></td>
+            </tr>
+            <tr>
+              <td>Whisper Local</td>
+              <td>~3-5s</td>
+              <td><span class="tag tag-free">Free</span></td>
+            </tr>
+            <tr>
+              <td>OpenAI TTS</td>
+              <td>~300ms</td>
+              <td><span class="tag tag-paid">$0.003/h</span></td>
+            </tr>
+            <tr>
+              <td>Edge TTS</td>
+              <td>~700ms</td>
+              <td><span class="tag tag-free">Free</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section id="pricing">
+    <p class="section-label">Pricing</p>
+    <h2 class="section-title">Pick your speed. <em>Or go free.</em></h2>
+    <p class="section-desc">All tiers get every feature. You're just choosing how fast and how natural the voice feels.</p>
+
+    <div class="pricing-grid">
+      <div class="price-card">
+        <p class="price-name">Free</p>
+        <p class="price-tag">$0 <span>/mo</span></p>
+        <p class="price-desc">Local everything. No API costs. Perfect for tinkering.</p>
+        <ul class="price-features">
+          <li>Whisper local STT (whisper.cpp)</li>
+          <li>Edge TTS (Microsoft voices)</li>
+          <li>All features included</li>
+          <li>~3-5s response delay</li>
+        </ul>
+        <a href="https://github.com/CryptoManiaques/ClawPilot" class="price-btn price-btn-ghost" target="_blank">Install free</a>
+      </div>
+
+      <div class="price-card featured">
+        <p class="price-name">Budget</p>
+        <p class="price-tag">~$10 <span>/mo</span></p>
+        <p class="price-desc">One API key. Real-time STT. Great tradeoff.</p>
+        <ul class="price-features">
+          <li>Deepgram STT (streaming)</li>
+          <li>Edge TTS (free voices)</li>
+          <li>All features included</li>
+          <li>~1s response delay</li>
+        </ul>
+        <a href="https://github.com/CryptoManiaques/ClawPilot" class="price-btn price-btn-primary" target="_blank">Get started</a>
+      </div>
+
+      <div class="price-card">
+        <p class="price-name">Premium</p>
+        <p class="price-tag">~$50 <span>/mo</span></p>
+        <p class="price-desc">Fastest STT + best voices. The full experience.</p>
+        <ul class="price-features">
+          <li>Deepgram STT (streaming)</li>
+          <li>OpenAI TTS (natural voices)</li>
+          <li>All features included</li>
+          <li>Sub-second response</li>
+        </ul>
+        <a href="https://github.com/CryptoManiaques/ClawPilot" class="price-btn price-btn-ghost" target="_blank">Go premium</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq">
+    <p class="section-label">FAQ</p>
+    <h2 class="section-title">Questions? <em>We got you.</em></h2>
+
+    <div class="faq-list">
+      <div class="faq-item">
+        <button class="faq-q">Do I need to be an OpenClaw user? <span class="chevron">+</span></button>
+        <div class="faq-a"><p>Yes. ClawPilot is a plugin for OpenClaw.ai. If you're not using it yet, go check it out — it's a free, open-source AI agent platform that actually lets your AI do things.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">Can I use this with ChatGPT or Claude? <span class="chevron">+</span></button>
+        <div class="faq-a"><p>ClawPilot works with whatever LLM your OpenClaw agent uses. GPT-4, Claude, Llama — doesn't matter. The voice layer sits on top.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">Is this like Alexa or Siri? <span class="chevron">+</span></button>
+        <div class="faq-a"><p>No. ClawPilot doesn't just answer trivia. It controls an AI agent that can send emails, browse the web, write code, manage tasks — whatever your OpenClaw agent can do.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">Is my voice data private? <span class="chevron">+</span></button>
+        <div class="faq-a"><p>With the Free tier (Whisper local), your audio never leaves your machine. With paid providers, audio is sent to Deepgram/OpenAI for processing. We never store or log your audio.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">What hardware do I need for the Free tier? <span class="chevron">+</span></button>
+        <div class="faq-a"><p>Whisper local works on any modern CPU. An M1 Mac or NVIDIA GPU will give you faster transcription (~1-2s). Budget/Premium tiers offload processing to the cloud, so any machine works.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">Can I change the wake word? <span class="chevron">+</span></button>
+        <div class="faq-a"><p>Yes! The wake words are fully configurable in your config. Set it to "hey claw," "ok claw," or anything you want.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">Can I contribute? <span class="chevron">+</span></button>
+        <div class="faq-a"><p>Absolutely. It's MIT licensed. Fork it, hack it, open PRs. The whole project is on GitHub.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FINAL CTA -->
+  <section class="final-cta">
+    <h2 class="section-title">Your AI agent is waiting <em>to hear from you.</em></h2>
+    <p class="section-desc">Install ClawPilot in 5 minutes. Say "Hey Claw" and never look back.</p>
+    <div class="final-cta-buttons">
+      <a href="https://github.com/CryptoManiaques/ClawPilot" class="btn-primary" target="_blank">Get started — it's free &rarr;</a>
+      <a href="https://github.com/CryptoManiaques/ClawPilot" class="btn-ghost" target="_blank">Star on GitHub &#9734;</a>
+    </div>
+    <div class="install-snippet">
+      <span class="cmd">$</span> git clone https://github.com/CryptoManiaques/ClawPilot.git
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>Built with &#127908; by the ClawPilot team. Open source forever.</p>
+    <div class="footer-links">
+      <a href="https://github.com/CryptoManiaques/ClawPilot" target="_blank">GitHub</a>
+      <a href="https://openclaw.ai" target="_blank">OpenClaw.ai</a>
+      <a href="https://github.com/CryptoManiaques/ClawPilot/blob/main/LICENSE" target="_blank">MIT License</a>
+    </div>
+  </footer>
+
+  <!-- SCRIPTS -->
+  <script>
+    // Waveform generator
+    const waveform = document.getElementById('waveform');
+    for (let i = 0; i < 40; i++) {
+      const bar = document.createElement('div');
+      bar.className = 'bar';
+      const h = 10 + Math.random() * 45;
+      bar.style.setProperty('--h', h + 'px');
+      bar.style.animationDelay = (Math.random() * 1.2) + 's';
+      waveform.appendChild(bar);
+    }
+
+    // Typewriter effect
+    const commands = [
+      '"Hey Claw, email John about the meeting tomorrow"',
+      '"Hey Claw, what\'s the latest on Solana?"',
+      '"Hey Claw, tweet about the new release"',
+      '"Hey Claw, summarize my unread emails"',
+      '"Hey Claw, set a reminder for 3pm"',
+    ];
+    const typedEl = document.getElementById('typed-text');
+    let cmdIndex = 0;
+    let charIndex = 0;
+    let isDeleting = false;
+    let pauseTimer = 0;
+
+    function typeLoop() {
+      const current = commands[cmdIndex];
+
+      if (!isDeleting) {
+        typedEl.textContent = current.slice(0, charIndex + 1);
+        charIndex++;
+        if (charIndex >= current.length) {
+          pauseTimer++;
+          if (pauseTimer > 30) {
+            isDeleting = true;
+            pauseTimer = 0;
+          }
+          setTimeout(typeLoop, 60);
+          return;
+        }
+        setTimeout(typeLoop, 40 + Math.random() * 30);
+      } else {
+        typedEl.textContent = current.slice(0, charIndex);
+        charIndex--;
+        if (charIndex < 0) {
+          isDeleting = false;
+          charIndex = 0;
+          cmdIndex = (cmdIndex + 1) % commands.length;
+          setTimeout(typeLoop, 400);
+          return;
+        }
+        setTimeout(typeLoop, 20);
+      }
+    }
+
+    setTimeout(typeLoop, 1000);
+
+    // FAQ accordion
+    document.querySelectorAll('.faq-q').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const item = btn.parentElement;
+        const wasOpen = item.classList.contains('open');
+        // Close all
+        document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+        // Toggle clicked
+        if (!wasOpen) item.classList.add('open');
+      });
+    });
+
+    // Scroll reveal
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity = '1';
+          entry.target.style.transform = 'translateY(0)';
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.step, .feature, .price-card, .faq-item').forEach(el => {
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(20px)';
+      el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+      observer.observe(el);
+    });
+  </script>
+</body>
+</html>
