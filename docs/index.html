@@ -724,8 +724,8 @@
     </div>
     <h1>Stop typing.<br>Start <em>talking</em> to your AI.</h1>
     <p class="hero-sub">
-      Say "Hey Claw" in Discord and your AI agent listens, thinks, and responds — by voice.
-      Send emails, tweet, research. All hands-free.
+      Say "Hey Bobby" in Discord and your AI agent listens, thinks, and responds — by voice.
+      Send emails, tweet, research. All hands-free. Any language.
     </p>
     <div class="hero-ctas">
       <a href="https://github.com/CryptoManiaques/ClawPilot" class="btn-primary" target="_blank">
@@ -761,18 +761,20 @@
       <div class="step">
         <p class="step-number">02</p>
         <h3>Add your keys</h3>
-        <p>Discord bot token + your choice of STT/TTS provider. Free options available.</p>
+        <p>Discord bot token, your agent's name, and your choice of STT/TTS provider. Free options available.</p>
         <div class="step-code">
+          <span class="cmd">"agentName"</span>: "bobby"<br>
           <span class="cmd">"sttProvider"</span>: "deepgram"<br>
           <span class="cmd">"ttsProvider"</span>: "openai"
         </div>
       </div>
       <div class="step">
         <p class="step-number">03</p>
-        <h3>Say "Hey Claw"</h3>
-        <p>Join a Discord voice channel, speak naturally, and your AI agent does the work.</p>
+        <h3>Say "Hey Bobby"</h3>
+        <p>Join a Discord voice channel, say your agent's name anywhere in a sentence, and it does the work.</p>
         <div class="step-code">
-          <span class="cmd">&gt;</span> "Hey Claw, email John about the meeting"<br>
+          <span class="cmd">&gt;</span> "Bobby, email John about the meeting"<br>
+          <span class="cmd">&gt;</span> "Est-ce que bobby peut m'aider ?"<br>
           <span style="color: var(--accent);">&#9654;</span> Done. Email sent to john@...
         </div>
       </div>
@@ -788,18 +790,18 @@
     <div class="features-grid">
       <div class="feature">
         <div class="feature-icon">&#127908;</div>
-        <h3>Wake word or always-on</h3>
-        <p>Say "Hey Claw" to activate, or flip to always-listening mode when you're in the zone. Fully configurable.</p>
+        <h3>Call it by name</h3>
+        <p>Give your agent a name like "Bobby" and say it anywhere in a sentence. Or use wake words, or always-on mode. Your choice.</p>
       </div>
       <div class="feature">
-        <div class="feature-icon">&#9995;</div>
-        <h3>Interrupt mid-sentence</h3>
-        <p>Your AI rambles? Cut it off. Start speaking and ClawPilot shuts up and listens. Like a good assistant should.</p>
+        <div class="feature-icon">&#127760;</div>
+        <h3>Any language</h3>
+        <p>English, French, Spanish, Japanese — speak in any language. STT and TTS providers handle multilingual out of the box.</p>
       </div>
       <div class="feature">
         <div class="feature-icon">&#128101;</div>
         <h3>Works in group calls</h3>
-        <p>Bring your AI to the team call. ClawPilot tracks who's speaking and responds contextually.</p>
+        <p>Bring your AI to the team call. ClawPilot tracks who's speaking and responds contextually. Barge-in supported.</p>
       </div>
       <div class="feature">
         <div class="feature-icon">&#128274;</div>
@@ -908,12 +910,12 @@
         <div class="faq-a"><p>With Whisper local + Edge TTS, your audio never leaves your machine. If you choose cloud providers like Deepgram or OpenAI, audio is sent to their servers for processing. We never store or log your audio.</p></div>
       </div>
       <div class="faq-item">
-        <button class="faq-q">What hardware do I need for local mode? <span class="chevron">+</span></button>
-        <div class="faq-a"><p>Whisper local works on any modern CPU. An M1 Mac or NVIDIA GPU will give you faster transcription (~1-2s). Cloud providers offload processing, so any machine works.</p></div>
+        <button class="faq-q">Does it work in my language? <span class="chevron">+</span></button>
+        <div class="faq-a"><p>Yes! ClawPilot works in any language supported by your STT/TTS providers. Deepgram and Whisper support 30+ languages including English, French, Spanish, German, Japanese, Chinese, and more. Edge TTS offers 400+ voices across 75+ languages.</p></div>
       </div>
       <div class="faq-item">
-        <button class="faq-q">Can I change the wake word? <span class="chevron">+</span></button>
-        <div class="faq-a"><p>Yes! The wake words are fully configurable in your config. Set it to "hey claw," "ok claw," or anything you want.</p></div>
+        <button class="faq-q">How do I set my agent's name? <span class="chevron">+</span></button>
+        <div class="faq-a"><p>Set <code>agentName</code> in your config (e.g. "bobby"). Then just say the name anywhere in a sentence — at the start, middle, or end. You can also use wake word prefixes like "Hey Claw" alongside the name.</p></div>
       </div>
       <div class="faq-item">
         <button class="faq-q">Can I contribute? <span class="chevron">+</span></button>
@@ -925,7 +927,7 @@
   <!-- FINAL CTA -->
   <section class="final-cta">
     <h2 class="section-title">Your AI agent is waiting <em>to hear from you.</em></h2>
-    <p class="section-desc">Install ClawPilot in 5 minutes. Say "Hey Claw" and never look back.</p>
+    <p class="section-desc">Install ClawPilot in 5 minutes. Say "Hey Bobby" and never look back.</p>
     <div class="final-cta-buttons">
       <a href="https://github.com/CryptoManiaques/ClawPilot" class="btn-primary" target="_blank">Get started — it's free &rarr;</a>
       <a href="https://github.com/CryptoManiaques/ClawPilot" class="btn-ghost" target="_blank">Star on GitHub &#9734;</a>
@@ -960,11 +962,11 @@
 
     // Typewriter effect
     const commands = [
-      '"Hey Claw, email John about the meeting tomorrow"',
-      '"Hey Claw, what\'s the latest on Solana?"',
-      '"Hey Claw, tweet about the new release"',
-      '"Hey Claw, summarize my unread emails"',
-      '"Hey Claw, set a reminder for 3pm"',
+      '"Bobby, email John about the meeting tomorrow"',
+      '"Est-ce que Bobby peut r\u00e9sumer mes emails ?"',
+      '"Bobby, tweet about the new release"',
+      '"Can you help me Bobby? I need flight prices"',
+      '"Bobby, qu\u0027est-ce qu\u0027il y a de nouveau sur Solana ?"',
     ];
     const typedEl = document.getElementById('typed-text');
     let cmdIndex = 0;
