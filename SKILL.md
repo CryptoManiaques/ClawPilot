@@ -15,15 +15,24 @@ Talk to your OpenClaw agent through Discord voice channels.
 2. Click **"New Application"** — give it a name (e.g. "ClawPilot")
 3. Go to the **Bot** section (left sidebar)
 4. Click **"Reset Token"** to generate a bot token — **copy it**, you'll need it later
-5. Under **Privileged Gateway Intents**, enable:
-   - **Server Members Intent**
-   - **Message Content Intent**
+5. Under **Privileged Gateway Intents** — no privileged intents are needed. Leave everything off. The bot only uses non-privileged intents (`Guilds`, `GuildVoiceStates`, `GuildMessages`).
 6. Go to **OAuth2 > URL Generator** (left sidebar)
 7. Under **Scopes**, check: `bot`, `applications.commands`
-8. Under **Bot Permissions**, check:
-   - **Connect** (join voice channels)
-   - **Speak** (play audio in voice channels)
-   - **Use Slash Commands**
+8. Under **Bot Permissions**, check exactly these 5 permissions:
+
+   **General Permissions:**
+   - ✅ **View Channels** — so the bot can see voice and text channels
+
+   **Text Permissions:**
+   - ✅ **Send Messages** — to respond in text channels
+   - ✅ **Use Slash Commands** — for `/join`, `/leave`, `/mode`, `/status`
+
+   **Voice Permissions:**
+   - ✅ **Connect** — join voice channels
+   - ✅ **Speak** — play TTS audio in voice channels
+
+   Don't check anything else — the bot doesn't need more than this.
+
 9. Copy the generated URL at the bottom and **open it in your browser**
 10. Select your Discord server and click **Authorize**
 

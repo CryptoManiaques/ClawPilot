@@ -63,9 +63,9 @@ This isn't a chatbot. Your OpenClaw agent keeps all its capabilities — sending
 
 1. Go to [Discord Developer Portal](https://discord.com/developers/applications)
 2. Create a new application → **Bot** section
-3. Enable **Message Content Intent** and **Server Members Intent**
-4. Copy the bot token
-5. Invite to your server with `bot` + `applications.commands` scopes, plus **Connect** and **Speak** voice permissions
+3. Copy the bot token (no privileged intents needed)
+4. Invite to your server with `bot` + `applications.commands` scopes
+5. Bot permissions: **View Channels**, **Send Messages**, **Use Slash Commands**, **Connect**, **Speak**
 
 ### 2. Install
 
