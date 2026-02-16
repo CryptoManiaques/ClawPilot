@@ -84,6 +84,12 @@ export const configSchema = Type.Object({
 
   // Agent
   agentId: Type.Optional(Type.String({ default: "main" })),
+  agentName: Type.Optional(
+    Type.String({
+      description:
+        'Agent name for activation (e.g. "bobby"). If set, saying the name anywhere in a sentence triggers the agent — no need for a prefix wake word.',
+    })
+  ),
 });
 
 export type ClawPilotConfig = Static<typeof configSchema>;

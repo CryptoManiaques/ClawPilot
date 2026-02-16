@@ -41,6 +41,7 @@ export class VoicePipeline {
         (config.activationMode as ActivationMode) ?? ActivationMode.WAKE_WORD,
       wakeWords: config.wakeWords ?? ["hey claw", "ok claw"],
       activationDurationMs: config.activationDurationMs ?? 30000,
+      agentName: config.agentName,
     });
     this.speakerTracker = new SpeakerTracker();
     this.defaultAssembler = new UtteranceAssembler();

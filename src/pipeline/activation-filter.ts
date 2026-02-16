@@ -2,6 +2,7 @@ import { ActivationMode } from "../types.js";
 
 export class ActivationFilter {
   private wakeWords: string[];
+  private agentName: string | null;
   private mode: ActivationMode;
   private isActivated = false;
   private activationTimeout: NodeJS.Timeout | null = null;
@@ -11,10 +12,12 @@ export class ActivationFilter {
     mode: ActivationMode;
     wakeWords: string[];
     activationDurationMs: number;
+    agentName?: string;
   }) {
     this.mode = config.mode;
     this.wakeWords = config.wakeWords.map((w) => w.toLowerCase());
     this.activationDurationMs = config.activationDurationMs;
+    this.agentName = config.agentName?.toLowerCase() ?? null;
   }
 
   check(transcribedText: string): {
@@ -27,21 +30,34 @@ export class ActivationFilter {
 
     const lower = transcribedText.toLowerCase().trim();
 
-    // Check for wake word at start of utterance
+    // 1. Check for wake word at start of utterance (prefix mode)
     for (const wakeWord of this.wakeWords) {
       if (lower.startsWith(wakeWord)) {
         this.activate();
         const cleaned = transcribedText.slice(wakeWord.length).trim();
-        // If there's content after the wake word, process it
         if (cleaned.length > 0) {
           return { shouldProcess: true, cleanedText: cleaned };
         }
-        // Wake word only — stay activated for follow-up utterance
+        // Wake word only — stay activated for follow-up
         return { shouldProcess: false, cleanedText: "" };
       }
     }
 
-    // If within activation window, process without wake word
+    // 2. Check for agent name anywhere in the sentence
+    if (this.agentName && lower.includes(this.agentName)) {
+      this.activate();
+      // Remove the agent name from the text (first occurrence)
+      const nameIndex = lower.indexOf(this.agentName);
+      const before = transcribedText.slice(0, nameIndex);
+      const after = transcribedText.slice(nameIndex + this.agentName.length);
+      const cleaned = (before + after).replace(/\s+/g, " ").trim();
+      if (cleaned.length > 0) {
+        return { shouldProcess: true, cleanedText: cleaned };
+      }
+      return { shouldProcess: false, cleanedText: "" };
+    }
+
+    // 3. If within activation window, process without trigger
     if (this.isActivated) {
       return { shouldProcess: true, cleanedText: transcribedText };
     }
