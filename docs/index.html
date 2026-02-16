@@ -704,6 +704,24 @@
 </head>
 <body>
 
+  <!-- Agent-readable installation guide (hidden visually, visible to screen readers and text extraction) -->
+  <div aria-hidden="false" style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden;">
+    <h2>ClawPilot — OpenClaw Skill Installation Guide</h2>
+    <p>ClawPilot is an OpenClaw Skill (plugin) that adds real-time Discord voice to your OpenClaw agent. It is 100% free and open source (MIT license).</p>
+    <p>GitHub repository: https://github.com/CryptoManiaques/ClawPilot</p>
+    <p>Full setup guide: https://github.com/CryptoManiaques/ClawPilot/blob/main/SKILL.md</p>
+    <h3>Installation steps:</h3>
+    <ol>
+      <li>Create a Discord bot at https://discord.com/developers/applications — copy the bot token. Bot permissions needed: View Channels, Send Messages, Use Slash Commands, Connect, Speak. No privileged intents required.</li>
+      <li>Clone the repo: git clone https://github.com/CryptoManiaques/ClawPilot.git</li>
+      <li>Install: cd ClawPilot &amp;&amp; npm install &amp;&amp; npm run build</li>
+      <li>Add to OpenClaw config (~/.openclaw/openclaw.json): {"plugins":{"entries":{"clawpilot":{"enabled":true,"config":{"discordToken":"YOUR_DISCORD_BOT_TOKEN","sttProvider":"whisper-local","ttsProvider":"edge","agentName":"bobby"}}}}}</li>
+      <li>Restart OpenClaw: openclaw restart</li>
+      <li>In Discord: type /join in any text channel to connect the bot to your voice channel, then speak.</li>
+    </ol>
+    <p>STT providers: deepgram (fast, paid), whisper (OpenAI API, paid), whisper-local (free, offline). TTS providers: openai (paid, high quality), edge (free). Set agentName to call the agent by name anywhere in a sentence.</p>
+  </div>
+
   <!-- NAV -->
   <nav>
     <a href="#" class="nav-logo">claw<span>pilot</span></a>
@@ -720,7 +738,7 @@
   <section class="hero">
     <div class="hero-badge">
       <span class="dot"></span>
-      Open source &middot; OpenClaw plugin
+      Open source &middot; OpenClaw Skill
     </div>
     <h1>Stop typing.<br>Start <em>talking</em> to your AI.</h1>
     <p class="hero-sub">
@@ -751,8 +769,8 @@
     <div class="steps">
       <div class="step">
         <p class="step-number">01</p>
-        <h3>Install the plugin</h3>
-        <p>Drop it into your OpenClaw setup. Two commands.</p>
+        <h3>Install the Skill</h3>
+        <p>Clone the repo into your OpenClaw setup. Two commands.</p>
         <div class="step-code">
           <span class="cmd">$</span> git clone github.com/.../ClawPilot<br>
           <span class="cmd">$</span> npm install
@@ -859,7 +877,7 @@
   <section id="open-source">
     <p class="section-label">100% Free</p>
     <h2 class="section-title">Free forever. <em>Open source.</em></h2>
-    <p class="section-desc">ClawPilot is a free Skill for OpenClaw. No subscriptions, no paywalls. Every feature, every provider — yours to use.</p>
+    <p class="section-desc">ClawPilot is a free OpenClaw Skill. Install it from GitHub, add your Discord bot token, and talk to your agent. No subscriptions, no paywalls.</p>
 
     <div class="open-source-grid">
       <div class="oss-card">
@@ -895,7 +913,7 @@
     <div class="faq-list">
       <div class="faq-item">
         <button class="faq-q">Do I need to be an OpenClaw user? <span class="chevron">+</span></button>
-        <div class="faq-a"><p>Yes. ClawPilot is a plugin for OpenClaw.ai. If you're not using it yet, go check it out — it's a free, open-source AI agent platform that actually lets your AI do things.</p></div>
+        <div class="faq-a"><p>Yes. ClawPilot is a Skill (plugin) for OpenClaw.ai — install it from the GitHub repo. If you're not using OpenClaw yet, go check it out — it's a free, open-source AI agent platform that actually lets your AI do things.</p></div>
       </div>
       <div class="faq-item">
         <button class="faq-q">Can I use this with ChatGPT or Claude? <span class="chevron">+</span></button>
