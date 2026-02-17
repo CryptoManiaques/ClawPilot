@@ -26,6 +26,7 @@ export function createSTTProvider(
         model: config.whisperModel,
         language: config.deepgramLanguage,
         whisperBin: config.whisperBin,
+        whisperModelPath: config.whisperModelPath,
       });
 
     case "whisper":

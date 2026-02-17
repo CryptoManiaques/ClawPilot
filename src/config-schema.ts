@@ -69,6 +69,12 @@ export const configSchema = Type.Object({
       description: "Path to whisper-cpp binary (default: whisper-cpp in PATH)",
     })
   ),
+  whisperModelPath: Type.Optional(
+    Type.String({
+      description:
+        "Full path to whisper model file (e.g. /path/to/ggml-small.bin). Overrides whisperModel.",
+    })
+  ),
 
   // Activation
   activationMode: Type.Optional(Type.String({ default: "wake_word" })),

@@ -40,6 +40,7 @@ export class WhisperLocalSTTClient implements STTProvider {
       model?: string; // tiny, base, small, medium, large
       language?: string;
       whisperBin?: string; // path to whisper.cpp binary
+      whisperModelPath?: string; // full path to model file (overrides model name)
     } = {}
   ) {}
 
@@ -129,9 +130,12 @@ export class WhisperLocalSTTClient implements STTProvider {
       const bin = this.options.whisperBin ?? "whisper-cpp";
       const model = this.options.model ?? "base";
       const lang = this.options.language?.split("-")[0] ?? "en";
+      const modelPath = this.options.whisperModelPath ?? `ggml-${model}.bin`;
+
+      this.logger.info("Running whisper-cpp", { bin, modelPath, lang, wavPath });
 
       const proc = spawn(bin, [
-        "-m", `ggml-${model}.bin`,
+        "-m", modelPath,
         "-f", wavPath,
         "-l", lang,
         "--no-timestamps",
