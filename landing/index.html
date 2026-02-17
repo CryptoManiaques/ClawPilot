@@ -715,8 +715,9 @@
       <li>Create a Discord bot at https://discord.com/developers/applications — copy the bot token. Bot permissions needed: View Channels, Send Messages, Use Slash Commands, Connect, Speak. No privileged intents required.</li>
       <li>Clone the repo: git clone https://github.com/CryptoManiaques/ClawPilot.git</li>
       <li>Install: cd ClawPilot &amp;&amp; npm install &amp;&amp; npm run build</li>
-      <li>Add to OpenClaw config (~/.openclaw/openclaw.json): {"plugins":{"entries":{"clawpilot":{"enabled":true,"config":{"discordToken":"YOUR_DISCORD_BOT_TOKEN","sttProvider":"whisper-local","ttsProvider":"edge","agentName":"bobby"}}}}}</li>
-      <li>Restart OpenClaw: openclaw restart</li>
+      <li>Register the plugin: openclaw plugins install --link /path/to/ClawPilot</li>
+      <li>Add to OpenClaw config (~/.openclaw/openclaw.json) under plugins.entries: {"clawpilot":{"enabled":true,"config":{"discordToken":"YOUR_DISCORD_BOT_TOKEN","sttProvider":"whisper-local","ttsProvider":"edge","agentName":"bobby"}}} — Do NOT add a "path" key, it will cause a validation error.</li>
+      <li>Restart OpenClaw: openclaw gateway restart</li>
       <li>In Discord: type /join in any text channel to connect the bot to your voice channel, then speak.</li>
     </ol>
     <p>STT providers: deepgram (fast, paid), whisper (OpenAI API, paid), whisper-local (free, offline). TTS providers: openai (paid, high quality), edge (free). Set agentName to call the agent by name anywhere in a sentence.</p>

@@ -57,7 +57,7 @@ Pick a STT and TTS provider based on your budget:
 | **openai** | ~300ms | ~$0.003/h | `openaiApiKey` |
 | **edge** | ~700ms | **Free** | `pip install edge-tts` + `ffmpeg` installed |
 
-### Step 3: Install the plugin
+### Step 3: Install the Skill
 
 ```bash
 git clone https://github.com/CryptoManiaques/ClawPilot.git
@@ -66,14 +66,14 @@ npm install
 npm run build
 ```
 
-Or via OpenClaw:
-```
-openclaw plugins install @openclaw/clawpilot
+Then register it as an OpenClaw plugin:
+```bash
+openclaw plugins install --link /path/to/ClawPilot
 ```
 
 ### Step 4: Configure
 
-Add to your OpenClaw config (`~/.openclaw/openclaw.json`):
+Add to your OpenClaw config (`~/.openclaw/openclaw.json`) under `plugins.entries`:
 
 ```json
 {
@@ -85,9 +85,7 @@ Add to your OpenClaw config (`~/.openclaw/openclaw.json`):
           "discordToken": "YOUR_BOT_TOKEN_FROM_STEP_1",
           "sttProvider": "whisper-local",
           "ttsProvider": "edge",
-          "agentName": "bobby",
-          "activationMode": "wake_word",
-          "wakeWords": ["hey claw", "ok claw"]
+          "agentName": "bobby"
         }
       }
     }
@@ -95,10 +93,12 @@ Add to your OpenClaw config (`~/.openclaw/openclaw.json`):
 }
 ```
 
+> **Important:** Do NOT add a `"path"` key inside the clawpilot entry — use `openclaw plugins install --link` instead. Adding `"path"` will cause a config validation error.
+
 ### Step 5: Start
 
-```
-openclaw restart
+```bash
+openclaw gateway restart
 ```
 
 Then in Discord:
