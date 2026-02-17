@@ -31,6 +31,6 @@
       "deepgramLanguage": { "type": "string" },
       "whisperModelPath": { "type": "string" }
     },
-    "required": ["discordToken"]
+    "required": []
   }
 }
