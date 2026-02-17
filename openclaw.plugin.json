@@ -1,0 +1,36 @@
+{
+  "id": "clawpilot",
+  "name": "ClawPilot",
+  "description": "Discord voice channel integration — talk to your AI agent through Discord voice.",
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": true,
+    "properties": {
+      "discordToken": { "type": "string", "description": "Discord bot token" },
+      "sttProvider": { "type": "string", "description": "STT engine: deepgram, whisper, or whisper-local" },
+      "ttsProvider": { "type": "string", "description": "TTS engine: openai or edge" },
+      "agentName": { "type": "string", "description": "Agent name for activation (e.g. bobby)" },
+      "activationMode": { "type": "string", "description": "wake_word, agent_name, or always_active" },
+      "deepgramApiKey": { "type": "string" },
+      "openaiApiKey": { "type": "string" },
+      "edgeTtsVoice": { "type": "string" },
+      "whisperModel": { "type": "string" },
+      "whisperBin": { "type": "string" },
+      "wakeWords": { "type": "array", "items": { "type": "string" } },
+      "activationDurationMs": { "type": "number" },
+      "enableBargeIn": { "type": "boolean" },
+      "groupMode": { "type": "boolean" },
+      "maxConcurrentSpeakers": { "type": "number" },
+      "ttsModel": { "type": "string" },
+      "ttsVoice": { "type": "string" },
+      "ttsSpeed": { "type": "number" },
+      "guildId": { "type": "string" },
+      "voiceChannelId": { "type": "string" },
+      "agentId": { "type": "string" },
+      "deepgramModel": { "type": "string" },
+      "deepgramLanguage": { "type": "string" },
+      "whisperModelPath": { "type": "string" }
+    },
+    "required": ["discordToken"]
+  }
+}

@@ -1,96 +1,70 @@
-import { Type } from "@sinclair/typebox";
 import { createDiscordVoiceBot } from "./discord/bot.js";
 import type { ClawPilotConfig } from "./config-schema.js";
-import { configSchema } from "./config-schema.js";
 import { createLogger } from "./utils/logger.js";
 import type { VoicePipeline } from "./pipeline/voice-pipeline.js";
+import type { Client } from "discord.js";
 
 // Registry of active voice pipelines keyed by sessionKey
 export const voicePipelineRegistry = new Map<string, VoicePipeline>();
 
+// Hold bot reference for service lifecycle
+let botInstance: { client: Client; destroy: () => Promise<void> } | null = null;
+
 /**
- * OpenClaw Plugin Definition (PluginDefinition format).
- * Registers ClawPilot as a channel plugin with monitor/send pattern.
+ * OpenClaw Plugin Definition (new SDK format).
+ * Registers ClawPilot as a service that starts the Discord voice bot.
  */
-export default {
-  slot: "channel" as const,
-  id: "discord-voice",
+const plugin = {
+  id: "clawpilot",
+  name: "ClawPilot",
+  description: "Discord voice channel integration — talk to your AI agent through Discord voice.",
 
-  schema: configSchema,
+  register(api: any) {
+    const pluginConfig = (api.pluginConfig ?? {}) as ClawPilotConfig;
 
-  async init(config: ClawPilotConfig, deps: { logger: any; configDir: string; rpc: any }) {
-    const logger = createLogger("ClawPilot");
-    logger.info("Initializing ClawPilot channel plugin...");
+    api.registerService({
+      id: "clawpilot-discord",
 
-    const bot = await createDiscordVoiceBot(config, logger);
+      async start() {
+        const logger = api.logger ?? createLogger("ClawPilot");
+        logger.info("Starting ClawPilot Discord voice bot...");
 
-    // Inbound message queue: voice pipeline pushes transcribed utterances here
-    const inboundQueue: Array<{
-      resolve: (value: MessageEnvelope) => void;
-    }> = [];
-    const pendingMessages: MessageEnvelope[] = [];
+        if (!pluginConfig.discordToken) {
+          logger.error("discordToken is required in ClawPilot config");
+          return;
+        }
 
-    /**
-     * Called by VoicePipeline when a user utterance passes activation filter.
-     * Pushes it into the monitor async generator for the OpenClaw agent.
-     */
-    (globalThis as any).__clawpilot_onInbound = (envelope: MessageEnvelope) => {
-      if (inboundQueue.length > 0) {
-        const waiter = inboundQueue.shift()!;
-        waiter.resolve(envelope);
-      } else {
-        pendingMessages.push(envelope);
-      }
-    };
-
-    return {
-      /**
-       * Async generator yielding inbound messages (user speech → text).
-       * The OpenClaw Gateway consumes this to route messages to the agent.
-       */
-      async *monitor(): AsyncGenerator<MessageEnvelope> {
-        while (true) {
-          if (pendingMessages.length > 0) {
-            yield pendingMessages.shift()!;
-          } else {
-            yield await new Promise<MessageEnvelope>((resolve) => {
-              inboundQueue.push({ resolve });
-            });
-          }
+        try {
+          botInstance = await createDiscordVoiceBot(pluginConfig, logger);
+          logger.info("ClawPilot Discord bot started successfully");
+        } catch (err) {
+          logger.error(`Failed to start ClawPilot: ${err}`);
         }
       },
 
-      /**
-       * Called by the OpenClaw Gateway when the agent has a response.
-       * Routes text to the appropriate VoicePipeline for TTS playback.
-       */
-      async send(envelope: OutboundMessageEnvelope) {
-        const pipeline = voicePipelineRegistry.get(envelope.target);
-        if (pipeline) {
-          await pipeline.speakResponse(envelope.text);
-        } else {
-          logger.warn("No active voice pipeline for target", {
-            target: envelope.target,
-          });
-        }
-      },
+      async stop() {
+        const logger = api.logger ?? createLogger("ClawPilot");
+        logger.info("Stopping ClawPilot...");
 
-      async login() {
-        return { success: true };
-      },
-
-      async logout() {
         for (const pipeline of voicePipelineRegistry.values()) {
           await pipeline.stop();
         }
         voicePipelineRegistry.clear();
-        await bot.destroy();
+
+        if (botInstance) {
+          await botInstance.destroy();
+          botInstance = null;
+        }
+
+        logger.info("ClawPilot stopped");
       },
-    };
+    });
   },
 };
 
-// --- Types matching OpenClaw channel protocol ---
+export default plugin;
+
+// --- Types used by voice pipeline ---
 
 export interface MessageEnvelope {
   id: string;
@@ -98,13 +72,6 @@ export interface MessageEnvelope {
   sender: string;
   text: string;
   timestamp: number;
-  replyToId?: string;
-}
-
-export interface OutboundMessageEnvelope {
-  target: string;
-  text: string;
-  channel?: string;
   replyToId?: string;
 }
 
