@@ -77,7 +77,7 @@ export const configSchema = Type.Object({
   ),
 
   // Activation
-  activationMode: Type.Optional(Type.String({ default: "wake_word" })),
+  activationMode: Type.Optional(Type.String({ default: "always_active" })),
   wakeWords: Type.Optional(
     Type.Array(Type.String(), { default: ["hey claw", "ok claw"] })
   ),

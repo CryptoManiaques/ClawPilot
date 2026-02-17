@@ -311,7 +311,7 @@ Set `activationMode` to `"always_active"`. Listens to **everything** — no trig
 | | | |
 | **Activation** | | |
 | `agentName` | — | Agent name for activation anywhere in sentence (e.g. `"bobby"`) |
-| `activationMode` | `"wake_word"` | `"wake_word"` or `"always_active"` |
+| `activationMode` | `"always_active"` | `"always_active"` or `"wake_word"` |
 | `wakeWords` | `["hey claw", "ok claw"]` | Prefix trigger phrases |
 | `activationDurationMs` | `30000` | Follow-up window after trigger (ms) |
 | | | |
