@@ -10,6 +10,9 @@ export const voicePipelineRegistry = new Map<string, VoicePipeline>();
 // Hold bot reference for service lifecycle
 let botInstance: { client: Client; destroy: () => Promise<void> } | null = null;
 
+// OpenClaw runtime reference — set during register(), used by voice pipeline
+export let openclawRuntime: any = null;
+
 /**
  * OpenClaw Plugin Definition (new SDK format).
  * Registers ClawPilot as a service that starts the Discord voice bot.
@@ -22,12 +25,17 @@ const plugin = {
   register(api: any) {
     const pluginConfig = (api.pluginConfig ?? {}) as ClawPilotConfig;
 
+    // Capture the OpenClaw runtime for agent message dispatching
+    openclawRuntime = api.runtime ?? null;
+
     api.registerService({
       id: "clawpilot-discord",
 
       async start() {
         const logger = api.logger ?? createLogger("ClawPilot");
-        logger.info("Starting ClawPilot Discord voice bot...");
+        logger.info("Starting ClawPilot Discord voice bot...", {
+          hasRuntime: !!openclawRuntime,
+        });
 
         if (!pluginConfig.discordToken) {
           logger.error("discordToken is required in ClawPilot config");
@@ -56,6 +64,7 @@ const plugin = {
           botInstance = null;
         }
 
+        openclawRuntime = null;
         logger.info("ClawPilot stopped");
       },
     });
@@ -63,17 +72,6 @@ const plugin = {
 };
 
 export default plugin;
-
-// --- Types used by voice pipeline ---
-
-export interface MessageEnvelope {
-  id: string;
-  channel: string;
-  sender: string;
-  text: string;
-  timestamp: number;
-  replyToId?: string;
-}
 
 /**
  * Standalone start function (for running outside OpenClaw, e.g. testing).

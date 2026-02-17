@@ -53,7 +53,7 @@ This isn't a chatbot. Your OpenClaw agent keeps all its capabilities — sending
 | **👥** | **Group calls** | Tracks who's speaking. Multiple people can interact with the agent. |
 | **💰** | **Free or premium** | Run 100% locally for $0, or use cloud providers for blazing speed. Your call. |
 | **🔒** | **Private** | Self-host with Whisper Local + Edge TTS. Your voice never leaves your machine. |
-| **⚡** | **Barge-in** | Start speaking and the bot shuts up. Like a good assistant should. |
+| **⚡** | **Streaming** | Speaks the first sentence while still generating — feels instant. |
 
 ---
 
@@ -73,12 +73,55 @@ This isn't a chatbot. Your OpenClaw agent keeps all its capabilities — sending
 git clone https://github.com/CryptoManiaques/ClawPilot.git
 cd ClawPilot
 npm install
-npm run build
+openclaw plugins install --link .
 ```
 
-### 3. Configure
+### 3. Create a Voice Agent
 
-Add to your OpenClaw config (`~/.openclaw/openclaw.json`):
+Add a dedicated voice agent to your `~/.openclaw/openclaw.json`. This uses a fast model for quick voice responses:
+
+```jsonc
+{
+  "agents": {
+    "list": [
+      // ... your existing agents ...
+      {
+        "id": "voice",
+        "name": "Bobby Voice",           // Your agent's name
+        "model": {
+          "primary": "anthropic/claude-sonnet-4-5-20250929"  // Fast model
+        },
+        "workspace": "~/.openclaw/agents/voice",
+        "agentDir": "~/.openclaw/agents/voice/agent"
+      }
+    ]
+  }
+}
+```
+
+Create the system prompt:
+```bash
+mkdir -p ~/.openclaw/agents/voice/agent
+cat > ~/.openclaw/agents/voice/agent/AGENT.md << 'EOF'
+# Voice Agent — Bobby
+
+You are Bobby, a friendly AI assistant responding via Discord voice chat.
+Your responses are converted to speech, so write exactly as you would speak.
+
+## Rules (STRICT)
+- Maximum 1-2 sentences. NEVER more than 3 sentences.
+- Be conversational and warm, like a friend
+- Match the user's language (French or English)
+- NEVER use markdown: no asterisks, no bold, no italic, no headers, no lists, no code blocks
+- NEVER use emojis or emoticons
+- Write pure plain spoken text only
+- If unsure, ask to repeat briefly
+EOF
+```
+
+### 4. Configure the Plugin
+
+Add to your OpenClaw config under `plugins.entries`:
 
 ```jsonc
 {
@@ -90,9 +133,10 @@ Add to your OpenClaw config (`~/.openclaw/openclaw.json`):
           "discordToken": "YOUR_DISCORD_BOT_TOKEN",
           "sttProvider": "whisper-local",   // Free! Or "deepgram" for speed
           "ttsProvider": "edge",            // Free! Or "openai" for quality
+          "edgeTtsVoice": "fr-FR-RemyMultilingualNeural",  // Your voice
           "agentName": "bobby",            // Say "bobby" anywhere to trigger
-          "activationMode": "wake_word",
-          "wakeWords": ["hey claw", "ok claw"]
+          "agentId": "voice",              // Route to the fast voice agent
+          "activationMode": "always_active"
         }
       }
     }
@@ -100,17 +144,17 @@ Add to your OpenClaw config (`~/.openclaw/openclaw.json`):
 }
 ```
 
-### 4. Talk
+### 5. Talk
 
-Join a Discord voice channel and say:
+```bash
+openclaw gateway restart
+```
 
-> **"Bobby, email John about the meeting tomorrow"**
+Join a Discord voice channel, type `/join`, and speak:
 
-Or mention the name anywhere in your sentence:
+> **"Bobby, what's the weather like?"**
 
-> **"Can you help me bobby?"**
-
-Your agent handles the rest.
+Your agent responds by voice. Responses stream sentence-by-sentence for minimal latency.
 
 ---
 
@@ -142,8 +186,10 @@ Mix and match STT and TTS engines. Go fully free or pay for speed — your choic
 {
   "sttProvider": "whisper-local",
   "ttsProvider": "edge",
+  "edgeTtsVoice": "en-US-AriaNeural",
   "agentName": "bobby",
-  "edgeTtsVoice": "en-US-AriaNeural"
+  "agentId": "voice",
+  "activationMode": "always_active"
 }
 ```
 Requires: [whisper.cpp](https://github.com/ggerganov/whisper.cpp) + `pip install edge-tts` + `ffmpeg`
@@ -157,7 +203,9 @@ Requires: [whisper.cpp](https://github.com/ggerganov/whisper.cpp) + `pip install
   "sttProvider": "deepgram",
   "deepgramApiKey": "YOUR_KEY",
   "ttsProvider": "edge",
-  "agentName": "bobby"
+  "agentName": "bobby",
+  "agentId": "voice",
+  "activationMode": "always_active"
 }
 ```
 </details>
@@ -172,7 +220,9 @@ Requires: [whisper.cpp](https://github.com/ggerganov/whisper.cpp) + `pip install
   "ttsProvider": "openai",
   "openaiApiKey": "YOUR_KEY",
   "ttsVoice": "nova",
-  "agentName": "bobby"
+  "agentName": "bobby",
+  "agentId": "voice",
+  "activationMode": "always_active"
 }
 ```
 </details>
@@ -223,9 +273,11 @@ Set `activationMode` to `"always_active"`. Listens to **everything** — no trig
 - **🗣 Agent name activation** — say the agent's name anywhere in a sentence to trigger it
 - **🎤 Wake word activation** — configurable prefix phrases ("hey claw", "ok claw", or anything you want)
 - **👂 Always-active mode** — listens to everything, no trigger needed
-- **🛑 Barge-in** — interrupt the bot mid-sentence by speaking
+- **⚡ Streaming responses** — starts speaking the first sentence while the agent is still generating the rest
+- **🎯 Dedicated voice agent** — route voice to a fast model (Sonnet) while your main agent uses a deeper model
+- **🧹 Smart TTS cleanup** — strips emojis, markdown, and onomatopoeia before speaking
+- **🔥 Agent warmup** — pings the voice agent at startup to eliminate cold-start latency
 - **👥 Group mode** — tracks multiple speakers with `[Name]:` attribution
-- **🔄 Auto-reconnect** — recovers from Discord/provider disconnects automatically
 - **⚙️ Fully configurable** — voices, models, languages, activation timeout, and more
 
 ---
@@ -264,10 +316,10 @@ Set `activationMode` to `"always_active"`. Listens to **everything** — no trig
 | `activationDurationMs` | `30000` | Follow-up window after trigger (ms) |
 | | | |
 | **Behavior** | | |
-| `enableBargeIn` | `true` | Interrupt bot when user speaks |
+| `enableBargeIn` | `false` | Interrupt bot when user speaks |
 | `groupMode` | `false` | Track multiple speakers |
 | `maxConcurrentSpeakers` | `3` | Max simultaneous speakers |
-| `agentId` | `"main"` | OpenClaw agent to route messages to |
+| `agentId` | `"main"` | OpenClaw agent to route messages to (use `"voice"` for dedicated voice agent) |
 
 </details>
 

@@ -84,7 +84,7 @@ export const configSchema = Type.Object({
   activationDurationMs: Type.Optional(Type.Number({ default: 30000 })),
 
   // Behavior
-  enableBargeIn: Type.Optional(Type.Boolean({ default: true })),
+  enableBargeIn: Type.Optional(Type.Boolean({ default: false })),
   groupMode: Type.Optional(Type.Boolean({ default: false })),
   maxConcurrentSpeakers: Type.Optional(Type.Number({ default: 3 })),
 

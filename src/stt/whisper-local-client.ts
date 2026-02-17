@@ -31,8 +31,8 @@ export class WhisperLocalSTTClient implements STTProvider {
   private readonly BYTES_PER_MS = 96;
   // Min audio length to bother transcribing (500ms)
   private readonly MIN_BUFFER_MS = 500;
-  // Silence duration before triggering transcription
-  private readonly SILENCE_THRESHOLD_MS = 1200;
+  // Silence duration before triggering transcription (lower = faster response)
+  private readonly SILENCE_THRESHOLD_MS = 800;
 
   constructor(
     private logger: Logger,

@@ -7,7 +7,7 @@ import type { Logger, TTSProvider } from "../types.js";
  * No API key needed. Quality is good for free.
  * Requires: pip install edge-tts
  *
- * Returns PCM 24kHz 16-bit mono (converted from MP3 via ffmpeg).
+ * Returns PCM 48kHz 16-bit stereo (converted from MP3 via ffmpeg, ready for Discord).
  * If edge-tts is not installed, falls back to a helpful error.
  */
 export class EdgeTTSClient implements TTSProvider {
@@ -34,8 +34,8 @@ export class EdgeTTSClient implements TTSProvider {
       const ffmpeg = spawn("ffmpeg", [
         "-i", "pipe:0",
         "-f", "s16le",
-        "-ar", "24000",
-        "-ac", "1",
+        "-ar", "48000",
+        "-ac", "2",
         "-loglevel", "error",
         "pipe:1",
       ]);
